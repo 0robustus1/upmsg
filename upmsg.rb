@@ -1,13 +1,15 @@
 #! /usr/bin/env ruby
 #encoding: UTF-8
+#Der Ersatz für dmesg. Hiermit werden die Timestamps zum ersten mal leserlich
+#angezeigt. 
 def get_actual_uptime(val=false)
   $basetime= (%x[cat /proc/uptime | cut -d' ' -f1 | cut -d'.' -f1 | tr -d "\n"]).to_i
   $sec=$basetime % 60
-  $min=$basetime / 60
-  $hours=$min / 60
-  $days=$hours / 24
-  $weeks=$days / 7
-  $years=$days / 365
+  $min=$basetime / 60 % 60
+  $hours=$basetime / 60 / 60 % 24
+  $days=$basetime / 60 / 60 / 24 % 7
+  $weeks=$days / 60 / 60 / 24 / 7 % 52
+  $years=$days / 60 / 60 / 24 / 365
 
   output=""
   output+="#{$years}y" if $years>0
@@ -24,12 +26,13 @@ end
 def get_given_uptime(given)
   $basetime= given.to_i
   $sec=$basetime % 60
-  $min=$basetime / 60
-  $hours=$min / 60
-  $days=$hours / 24
-  $weeks=$days / 7
-  $years=$days / 365
+  $min=$basetime / 60 % 60
+  $hours=$basetime / 60 / 60 % 24
+  $days=$basetime / 60 / 60 / 24 % 7
+  $weeks=$days / 60 / 60 / 24 / 7 % 52
+  $years=$days / 60 / 60 / 24 / 365
 
+  
   output=""
   output+="#{$years}y" if $years>0
   output+=" #{$weeks}w" if $weeks>0
@@ -60,4 +63,3 @@ $dmesg.each_line do |line|
     puts line.gsub(/\[\s*\d+.\d+\]/ , "[#{space}#{time}]")
   end
 end
-
