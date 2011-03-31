@@ -5,8 +5,7 @@
 
 require 'libnotify'
 
-def get_actual_uptime(val=false)
-  basetime= (%x[cat /proc/uptime | cut -d' ' -f1 | cut -d'.' -f1 | tr -d "\n"]).to_i
+def calc_time(basetime)
   sec=basetime % 60
   min=basetime / 60 % 60
   hours=basetime / 60 / 60 % 24
@@ -22,29 +21,23 @@ def get_actual_uptime(val=false)
   output+=" #{min}m " if min>0
   output+="#{sec}s"
   
-  puts "#{output}" if val==true #Für die Ausgabe
-  return output #Für Rücklieferung
+  return output
+end
+def get_actual_uptime(val=false)
+  basetime= (%x[cat /proc/uptime | cut -d' ' -f1 | cut -d'.' -f1 | tr -d "\n"]).to_i
+  
+  output = calc_time basetime
+
+  puts "#{output}" if val==true 
+  return output 
 end
 
 def get_given_uptime(given)
-  basetime= given.to_i
-  sec=basetime % 60
-  min=basetime / 60 % 60
-  hours=basetime / 60 / 60 % 24
-  days=basetime / 60 / 60 / 24 % 7
-  weeks=days / 60 / 60 / 24 / 7 % 52
-  years=days / 60 / 60 / 24 / 365
+  basetime = given.to_i
+  
+  output = calc_time basetime
 
-  
-  output=""
-  output+="#{years}y" if years>0
-  output+=" #{weeks}w" if weeks>0
-  output+=" #{days}d" if days>0
-  output+=" #{hours}h" if hours>0
-  output+=" #{min}m " if min>0
-  output+="#{sec}s"
-  
-  return output #Für Rücklieferung
+  return output 
 end
 
 def fill_space(val)
