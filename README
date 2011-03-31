@@ -1,0 +1,2 @@
+This little tool is supposed to make notification whenever a new dmesg (a.k.a Kernel relevant Message)
+is sent. So you'll be informed about important things.
