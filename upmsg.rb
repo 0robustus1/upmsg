@@ -1,7 +1,10 @@
 #! /usr/bin/env ruby
 #encoding: UTF-8
 #Der Ersatz für dmesg. Hiermit werden die Timestamps zum ersten mal leserlich
-#angezeigt. 
+#angezeigt.
+
+require 'libnotify'
+
 def get_actual_uptime(val=false)
   basetime= (%x[cat /proc/uptime | cut -d' ' -f1 | cut -d'.' -f1 | tr -d "\n"]).to_i
   sec=basetime % 60
@@ -84,5 +87,34 @@ def get_options
     end
   end
 end
+
+def daemonize
+  $dmesg = %x[dmesg]
+  while( true ) 
+    sleep 5
+    current = %x[dmesg]
+    begin
+      if (current.length > $dmesg.length)
+        text = current[$dmesg.length..(current.length-1)]
+        text = text.gsub(/\[\s*\d+.\d+\]/,'')
+        notification = Libnotify.new do |n|
+          n.summary = "dmesg: "+%x[date +"%H:%M:%S"]+"up: "+get_actual_uptime
+          n.body = text
+          #n.append = true
+          # Timeout ist mind. 2 Sekunden, plus die Hälfte die Zeilen in s
+          n.timeout = 2 + (text.count("\n")*0.5) 
+          n.urgency = :normal
+          n.append = false
+          #evtl n.icon_path 
+        end
+        notification.show!
+      end
+      $dmesg = current
+      current = %x[dmesg]
+      sleep 2
+    end while (current.length > $dmesg.length)
+  end
+end
 get_options 
 put_dmesg if $opt.length == 0
+daemonize if $opt[:d]
