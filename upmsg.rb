@@ -117,4 +117,8 @@ def daemonize
 end
 get_options 
 put_dmesg if $opt.length == 0
+if $opt[:up]
+  put_dmesg
+  puts "Current Uptime: "+get_actual_uptime
+end
 daemonize if $opt[:d]
