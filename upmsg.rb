@@ -65,8 +65,11 @@ end
 #Optionenbehandlung
 #Es existieren folgende Optionen:
 #keine Option gesetzt: Standardausgabe, wobei Timestamps
-#durch menschenlesbare Werte ersetzt sind
+#durch menschenlesbare Werte ersetzt sind:
 #-up :: Gibt die tatsächliche Uptime am Ende mit aus.
+#-f(t/u) :: Spezifiert die dmesg Ausgabe erwartet entweder t oder u im Anschluss
+#-ft :: Gibt hinter jedem Eintrag die tatsächliche Ereigniszeit aus
+#-fu :: Gibt hinter jedem Eintrag die Uptimezeit aus (Default)
 #-d :: daemon-mode. Es erfolgt keine direkte Ausgabe in die 
 #Konsole, man wird über notfiy's über neue Nachrichten im Kernellog (dmesg)
 #benachrichtigt. Sollten andere Optionen gesetzt sein, werden diese
@@ -76,6 +79,8 @@ def get_options
   ARGV.each do |arg|
     case arg
     when "-up" then $opt[:up]=true
+    when "-ft" then $opt[:ft]=true
+    when "-fu" then $opt[:fu]=true
     when "-d" then $opt[:d]=true
     end
   end
