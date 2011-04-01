@@ -50,12 +50,29 @@ end
 
 def put_dmesg
   dmesg = %x[dmesg]
-  now_length = (get_actual_uptime).length
+  if $opt[:fu]
+    now = (%x[cat /proc/uptime | cut -d' ' -f1 | cut -d'.' -f1 | tr -d "\n"])
+  elsif $opt[:ft]
+    now = Time.new
+    nowstamp = (%x[cat /proc/uptime | cut -d' ' -f1 | cut -d'.' -f1 | tr -d "\n"])
+
+  else 
+    now = get_actual_uptime
+  end
+  now_length = now.to_s.length
   dmesg.each_line do |line|
     time = line[/\[\s*\d+.\d+\]/]
     if time 
       time = time[/\d+/]
-      time = get_given_uptime(time)
+      if $opt[:fu]
+        diff = now.to_i - time.to_i
+        time = get_given_uptime(diff)
+      elsif $opt[:ft]
+        diff = nowstamp.to_i - time.to_i
+        time = (now - diff).to_s #weil time sonst Time-Objekt ist
+      else
+        time = get_given_uptime(time) 
+      end
       space = fill_space(now_length - time.length)
       puts line.gsub(/\[\s*\d+.\d+\]/ , "[#{space}#{time}]")
     end
@@ -69,8 +86,8 @@ end
 #-up :: Gibt die tatsächliche Uptime am Ende mit aus.
 #-f(t/u) :: Spezifiert die dmesg Ausgabe erwartet entweder t oder u im Anschluss
 #-ft :: Gibt hinter jedem Eintrag die tatsächliche Ereigniszeit aus
-#-fu :: Gibt hinter jedem Eintrag die Uptimezeit aus (Default)
-#-d :: daemon-mode. Es erfolgt keine direkte Ausgabe in die 
+#-fu :: Gibt hinter jedem Eintrag aus wie lange es schon her ist.
+##-d :: daemon-mode. Es erfolgt keine direkte Ausgabe in die 
 #Konsole, man wird über notfiy's über neue Nachrichten im Kernellog (dmesg)
 #benachrichtigt. Sollten andere Optionen gesetzt sein, werden diese
 #behandelt bevor in den Daemon-Mode gewechselt wird.
@@ -115,6 +132,7 @@ def daemonize
 end
 get_options 
 put_dmesg if $opt.length == 0
+put_dmesg if $opt[:ft] || $opt[:fu]
 if $opt[:up]
   put_dmesg
   puts "Current Uptime: "+get_actual_uptime
