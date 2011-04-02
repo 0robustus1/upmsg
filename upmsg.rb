@@ -93,12 +93,19 @@ end
 #behandelt bevor in den Daemon-Mode gewechselt wird.
 def get_options
   $opt = Hash.new
-  ARGV.each do |arg|
-    case arg
-    when "-i" then $opt[:i]=true
-    when "-ft" then $opt[:ft]=true
-    when "-fu" then $opt[:fu]=true
-    when "-d" then $opt[:d]=true
+  ARGV.each do |a|
+    arg = a.dup
+    if arg.gsub!("-","")
+      arg.each_char {|c| $opt[c.to_sym]=true}
+    else 
+      puts "invalid option."
+      exit
+    end
+    $opt[:ft]=true if ($opt[:f] && $opt[:t])
+    $opt[:fu]=true if ($opt[:f] && $opt[:u])
+    if $opt[:ft] && $opt[:fu]
+      puts "Only one format-option is allowed."
+      exit
     end
   end
 end
