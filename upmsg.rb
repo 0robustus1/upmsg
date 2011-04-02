@@ -83,7 +83,7 @@ end
 #Es existieren folgende Optionen:
 #keine Option gesetzt: Standardausgabe, wobei Timestamps
 #durch menschenlesbare Werte ersetzt sind:
-#-up :: Gibt die tatsächliche Uptime am Ende mit aus.
+#-i :: Gibt die tatsächliche Uptime am Ende mit aus.
 #-f(t/u) :: Spezifiert die dmesg Ausgabe erwartet entweder t oder u im Anschluss
 #-ft :: Gibt hinter jedem Eintrag die tatsächliche Ereigniszeit aus
 #-fu :: Gibt hinter jedem Eintrag aus wie lange es schon her ist.
@@ -95,7 +95,7 @@ def get_options
   $opt = Hash.new
   ARGV.each do |arg|
     case arg
-    when "-up" then $opt[:up]=true
+    when "-i" then $opt[:i]=true
     when "-ft" then $opt[:ft]=true
     when "-fu" then $opt[:fu]=true
     when "-d" then $opt[:d]=true
@@ -133,7 +133,7 @@ end
 get_options 
 put_dmesg if $opt.length == 0
 put_dmesg if $opt[:ft] || $opt[:fu]
-if $opt[:up]
+if $opt[:i]
   put_dmesg
   puts "Current Uptime: "+get_actual_uptime
 end
