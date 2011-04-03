@@ -1,0 +1,74 @@
+= upmsg
+
+This little tool is supposed to be an extension for the dmesg-command in linux.
+Since timestamps (as long as there are activated) only show sceonds.nanoseconds, there not very human-readable.
+
+upmsg is fixing that. You can format the Output to actual uptime, actual time, and how many minutes and seconds (and so far) ago the certain events happened.
+
+There is also a daemon mode which notifies you using libnotify and your installed notification-daemon. Everytime an event happens you will be notified. (in you gui in a nice little bubble)
+
+== Installation
+
+=== Dependencies:
+
+* System: libnotify, ruby 1.9.xx, some notification daemon
+
+* Ruby(Gems): libnotify
+
+=== Installationguide
+
+Until there is a Configuration and a GUI there will be no significant idea to install, since there are no repositories (Linux-Distribution-Repositories) which include this little tool. 
+
+So i'll explain the most important things here.
+
+Firstly it's important to set timestamp logging in your Kernel. Normally you can do this with an Option in your bootloader. As far as i know, since 2.35.1 you have to set the Kerneloption 
+
+  printk.time=1
+
+
+(In Grub it's in the kernel line, after all the important stuff like where the kernel is located) 
+So this will enable timestamping in your Kernel.
+
+Now you just copy the script in a place in your PATH, preferably in _/usr/bin_
+
+After this is done, you should write the following line in your autstart script. (The one your WindowManager procures for you)
+
+
+  upmsg -d &
+ 
+
+== Usage
+
+There are only two ways to use this script, yet. 
+Firstly to use at as an output instead of the dmesg-command. 
+To use upmsg in this way you just call
+
+  upmsg
+
+from your shell of choice, or 
+
+  upmsg -i
+
+if you want to see the actual uptime after the modified dmesg-ouput to correspond it with the events.
+
+Secondly there is the daemon mode.
+Daemon mode is start with the command: 
+
+  upmsg -d
+
+However i advise to start it in the background by setting an <tt>&</tt> after the command.
+
+Daemon mode means, that the program will run and check for updates in the dmesg output (by default in 5 second steps). If there is new output, a notification will be send showing the event and the current uptime and actual time.
+
+==== Other Options:
+
+The option <tt>-f</tt> represents advanced formatting for the timestamp-box in eventmessages (dmesg).
+It expects another option to specify which format should be used:
+
+
+  upmsg -ft
+ 
+In dmesg messages (Output) there will be actual Timestamps in place of Timestampcodes. (UTC formatted):
+
+  upmsg -fu
+
