@@ -1,5 +1,7 @@
 = upmsg
 
+...the simple dmesg-notification extension...
+
 This little tool is supposed to be an extension for the dmesg-command in linux.
 Since timestamps (as long as there are activated) only show sceonds.nanoseconds, there not very human-readable.
 
@@ -29,7 +31,7 @@ Firstly it's important to set timestamp logging in your Kernel. Normally you can
 (In Grub it's in the kernel line, after all the important stuff like where the kernel is located) 
 So this will enable timestamping in your Kernel.
 
-Now you just copy the script in a place in your PATH, preferably in _/usr/bin_
+Now you just copy the script in a place in your PATH, preferably in <tt>/usr/bin</tt>
 
 After this is done, you should write the following line in your autstart script. (The one your WindowManager procures for you)
 
