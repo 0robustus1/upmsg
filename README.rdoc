@@ -13,9 +13,14 @@ There is also a daemon mode which notifies you using libnotify and your installe
 
 === Dependencies:
 
-* System: libnotify, ruby 1.9.xx, some notification daemon
+* System: 
+  * libnotify(=>0.7.0)
+  * ruby(=> 1.9.0)
+  * some notification daemon
+    like xfce-notifyd, notification-daemon or others
 
-* Ruby(Gems): libnotify
+* Ruby(Gems): 
+  * ruby-libnotify(=>0.5.0)
 
 === Installationguide
 
