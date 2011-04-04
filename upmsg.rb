@@ -1,10 +1,16 @@
 #! /usr/bin/env ruby
 #encoding: UTF-8
-#Der Ersatz für dmesg. Hiermit werden die Timestamps zum ersten mal leserlich
-#angezeigt.
+#dmesg-extension for Notifications and human-readable formatting.
 
-#require 'libnotify'
 require 'RNotify'
+# ==Zeitberechnung
+#
+# Berechnet aus einer übergebenen Zeit (in Sekunden) einen
+# sinnvollen Timestamp in dem Format
+#
+# <tt>Jahre Wochen Tage Stunden Minuten Sekunden</tt>
+#
+# Beispiel: <i>[ 2y 12w 15d 22h 15m 10s] event</i>
 def calc_time(basetime)
   sec=basetime % 60
   min=basetime / 60 % 60
@@ -23,6 +29,14 @@ def calc_time(basetime)
   
   return output
 end
+
+#==tatsächliche Uptime
+#
+#Berechnet die momentane Uptime des Computers,
+#in dem eigenen Ausgabeformat.
+#
+#- Liefert den String zurück
+#- wenn true übergeben wird, wird der String vorher schon ausgegeben.
 def get_actual_uptime(val=false)
   basetime= (%x[cat /proc/uptime | cut -d' ' -f1 | cut -d'.' -f1 | tr -d "\n"]).to_i
   
@@ -32,6 +46,11 @@ def get_actual_uptime(val=false)
   return output 
 end
 
+#==gegebene Zeit
+#
+#Berechnet aus einer gegebenen Zeit(in Sekunden) 
+#den Timestamp. 
+#Dient eigentlich nur als wrapper für _calc_time_
 def get_given_uptime(given)
   basetime = given.to_i
   
@@ -40,6 +59,10 @@ def get_given_uptime(given)
   return output 
 end
 
+#==Leerzeichenstring
+#
+#Gibt einen String mit der übergebenen Anzahl an 
+#Leerzeichen zurück.
 def fill_space(val)
   whitespace = ""
   val.times do 
@@ -48,6 +71,13 @@ def fill_space(val)
   return whitespace
 end
 
+#==formatierter dmesg-Output
+#
+#Gibt den dmesg Output formatiert auf der Konsole aus.
+#Es wird implizit vorausgesetzt, dass vorher _get_options_
+#durchgeführt wurde.
+#Wenn nicht wird es Standardformatiert und somit der Timestamp der 
+#Uptime zur Zeit des Events ausgegeben.
 def put_dmesg
   dmesg = %x[dmesg]
   if $opt[:fu]
@@ -79,15 +109,16 @@ def put_dmesg
   end
 end
 
-#Optionenbehandlung
+#==Optionenbehandlung
+#
 #Es existieren folgende Optionen:
-#keine Option gesetzt: Standardausgabe, wobei Timestamps
+#* keine Option gesetzt: Standardausgabe, wobei Timestamps
 #durch menschenlesbare Werte ersetzt sind:
-#-i :: Gibt die tatsächliche Uptime am Ende mit aus.
-#-f(t/u) :: Spezifiert die dmesg Ausgabe erwartet entweder t oder u im Anschluss
-#-ft :: Gibt hinter jedem Eintrag die tatsächliche Ereigniszeit aus
-#-fu :: Gibt hinter jedem Eintrag aus wie lange es schon her ist.
-##-d :: daemon-mode. Es erfolgt keine direkte Ausgabe in die 
+#* -i :: Gibt die tatsächliche Uptime am Ende mit aus.
+#* -f(t/u) :: Spezifiert die dmesg Ausgabe erwartet entweder t oder u im Anschluss
+#* -ft :: Gibt hinter jedem Eintrag die tatsächliche Ereigniszeit aus
+#* -fu :: Gibt hinter jedem Eintrag aus wie lange es schon her ist.
+#* -d :: daemon-mode. Es erfolgt keine direkte Ausgabe in die 
 #Konsole, man wird über notfiy's über neue Nachrichten im Kernellog (dmesg)
 #benachrichtigt. Sollten andere Optionen gesetzt sein, werden diese
 #behandelt bevor in den Daemon-Mode gewechselt wird.
@@ -110,6 +141,15 @@ def get_options
   end
 end
 
+#==daemon-Mode
+#
+#Startet das Programm im daemon-mode.
+#Es wird in regelmäßigen Abständen(Default 5 Sekunden)
+#auf änderungen in der dmesg-Struktur geprüft. Wenn
+#ja werden diese Änderungen, mit brauchbaren Timestamps versehen,
+#als Notification an den notification-daemon und damit
+#an den Window-Manager gesendet. Es folgt normalerweise
+#eine Bubbleausgabe auf dem Bildschirm.
 def daemonize
   $dmesg = %x[dmesg]
   puts "daemon up and running..."
