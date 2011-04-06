@@ -1,8 +1,11 @@
 #! /usr/bin/env ruby
 #encoding: UTF-8
+
 #dmesg-extension for Notifications and human-readable formatting.
 
 require 'RNotify'
+load 'nilext.rb'
+
 # ==Zeitberechnung
 #
 # Berechnet aus einer übergebenen Zeit (in Sekunden) einen
@@ -102,6 +105,22 @@ def get_options
     end
   end
   return opt
+end
+
+#==daemon-Konfiguration
+#
+#Die Einstellungsmöglichkeiten des daemon-modes
+#könnten so umfangreich werden, dass
+#Optionen nicht mehr genügen um sinnvoll zu konfigurieren.
+#Deshalb soll die folgende Datei der Konfiguration
+#dienen:
+#<tt>user_home_directory/.upmsgrc</tt>
+#Weitere Hilfe zur Erstellung der Datei wird folgen.
+def get_config
+  config_file = File.new(ENV['HOME']+'/.upmsgrc')
+  config = Hash.new
+  # following Code
+  return config
 end
 
 #==Kernobjekt
