@@ -5,8 +5,11 @@
 
 require 'RNotify'
 require 'yaml'
-load 'nilext.rb'
-load 'hashcon.rb'
+load 'nil_mod.rb'
+load 'hash_mod.rb'
+
+include ExtendedNil
+include HashRename
 
 # ==Zeitberechnung
 #
@@ -120,12 +123,11 @@ end
 #Weitere Hilfe zur Erstellung der Datei wird folgen.
 def get_config
   config_file = YAML.load(File.open(ENV['HOME']+'/.upmsgrc'))
-  config_names = {
-    "Timeout" => :to
-    "Extratimeout per line" => :exto
+  config_names = {"Timeout" => :to,
+    "Extratimeout per line" => :exto,
     "Check for new Events" => :evt
   }
-  return ConHash.contract(config_file, config_names)
+  return h_rename(config_file, config_names)
 end
 
 #==Kernobjekt
@@ -138,9 +140,11 @@ end
 class Upmsg
   attr_accessor :opt, :dmesg, :config
   
-  def initialize(options=Hash.new, config = nil)
+  def initialize(options=nil, config = nil)
     @opt = options  
     @config = config
+    @opt||=get_options
+    @config||=get_config
   end
 
   #===formatierter dmesg-Output
@@ -193,7 +197,7 @@ class Upmsg
     dmesg = %x[dmesg]
     puts "daemon up and running..."
     while( true ) 
-      sleep 5
+      sleep @config[:evt]
       current = %x[dmesg]
       Notify.init("dmesg")
       begin
@@ -202,7 +206,7 @@ class Upmsg
           text = text.gsub(/\[\s*\d+.\d+\]/,'')
           summary = "dmesg: "+%x[date +"%H:%M:%S"]+"up: "+get_actual_uptime
           notification = Notify::Notification.new(summary, text, nil)
-          notification.timeout=((2 + (text.count("\n")/2))*1000)
+          notification.timeout=((@config[:to] + (text.count("\n") * @config[:exto]).to_i)*1000)
           notification.show
         end
         dmesg = current
@@ -215,7 +219,7 @@ class Upmsg
 
 end
 
-run = Upmsg.new(get_options) 
+run = Upmsg.new 
 run.show if (run.opt.length == 0) || run.opt[:ft] || run.opt[:fu]
 if run.opt[:i]
   run.show

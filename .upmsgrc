@@ -1,0 +1,4 @@
+--- 
+Timeout: 2
+Extratimeout per line: 0.5
+Check for new Events: 5
