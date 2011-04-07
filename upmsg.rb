@@ -4,7 +4,9 @@
 #dmesg-extension for Notifications and human-readable formatting.
 
 require 'RNotify'
+require 'yaml'
 load 'nilext.rb'
+load 'hashcon.rb'
 
 # ==Zeitberechnung
 #
@@ -117,10 +119,13 @@ end
 #<tt>user_home_directory/.upmsgrc</tt>
 #Weitere Hilfe zur Erstellung der Datei wird folgen.
 def get_config
-  config_file = File.new(ENV['HOME']+'/.upmsgrc')
-  config = Hash.new
-  # following Code
-  return config
+  config_file = YAML.load(File.open(ENV['HOME']+'/.upmsgrc'))
+  config_names = {
+    "Timeout" => :to
+    "Extratimeout per line" => :exto
+    "Check for new Events" => :evt
+  }
+  return ConHash.contract(config_file, config_names)
 end
 
 #==Kernobjekt
