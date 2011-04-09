@@ -5,8 +5,8 @@
 
 require 'RNotify'
 require 'yaml'
-load 'nil_mod.rb'
-load 'hash_mod.rb'
+require_relative 'nil_mod.rb'
+require_relative 'hash_mod.rb'
 
 include ExtendedNil
 include HashRename
